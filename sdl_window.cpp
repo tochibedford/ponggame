@@ -2,11 +2,14 @@
 #include <SDL3/SDL_main.h>
 #include <stdlib.h>
 
-void* buffer_memory;
-SDL_Renderer* renderer;
-SDL_Texture* texture;
-int win_width  {800};
-int win_height {600};
+struct Render_State {
+    int win_width, win_height;
+    SDL_Renderer* renderer;
+    SDL_Texture* texture;
+    void* buffer_memory;
+};
+
+Render_State render_state;
 
 static bool init_sdl();
 static SDL_Window* create_window();
@@ -25,13 +28,13 @@ int main(int argc, char* argv[]) {
 
     while (process_events()) {
         // Render goes here.
-        unsigned int* pixel = (unsigned int*)buffer_memory;
-        for (int y = 0; y < win_height; y++)
-            for (int x = 0; x < win_width; x++)
+        unsigned int* pixel = (unsigned int*)render_state.buffer_memory;
+        for (int y = 0; y < render_state.win_height; y++)
+            for (int x = 0; x < render_state.win_width; x++)
                 *pixel++ = x * y;
-        SDL_UpdateTexture(texture, nullptr, buffer_memory, win_width * sizeof(unsigned int));
-        SDL_RenderTextureRotated(renderer, texture, nullptr, nullptr, 0.0, nullptr, SDL_FLIP_VERTICAL);
-        SDL_RenderPresent(renderer);
+        SDL_UpdateTexture(render_state.texture, nullptr, render_state.buffer_memory, render_state.win_width * sizeof(unsigned int));
+        SDL_RenderTextureRotated(render_state.renderer, render_state.texture, nullptr, nullptr, 0.0, nullptr, SDL_FLIP_VERTICAL);
+        SDL_RenderPresent(render_state.renderer);
     }
 
     cleanup(win);
@@ -48,7 +51,7 @@ static bool init_sdl() {
 }
 
 static SDL_Window* create_window() {
-    SDL_Window* win = SDL_CreateWindow("Simple Game", win_width, win_height,
+    SDL_Window* win = SDL_CreateWindow("Simple Game", render_state.win_width, render_state.win_height,
                                        SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALWAYS_ON_TOP);
     if (!win) {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error",
@@ -56,7 +59,7 @@ static SDL_Window* create_window() {
         return nullptr;
     }
 
-    renderer = SDL_CreateRenderer(win, nullptr);
+    render_state.renderer = SDL_CreateRenderer(win, nullptr);
 
   
     int pixel_width, pixel_height;
@@ -67,16 +70,16 @@ static SDL_Window* create_window() {
 }
 
 static void resize_buffer(int width, int height) {
-    win_width = width;
-    win_height = height;
+    render_state.win_width = width;
+    render_state.win_height = height;
 
-    int buffer_size = win_width * win_height * sizeof(unsigned int);
+    int buffer_size = render_state.win_width * render_state.win_height * sizeof(unsigned int);
 
-    if (buffer_memory) free(buffer_memory);
-    buffer_memory = malloc(buffer_size);
+    if (render_state.buffer_memory) free(render_state.buffer_memory);
+    render_state.buffer_memory = malloc(buffer_size);
 
-    if(texture) SDL_DestroyTexture(texture);
-    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_XRGB8888, SDL_TEXTUREACCESS_STREAMING, win_width, win_height);
+    if(render_state.texture) SDL_DestroyTexture(render_state.texture);
+    render_state.texture = SDL_CreateTexture(render_state.renderer, SDL_PIXELFORMAT_XRGB8888, SDL_TEXTUREACCESS_STREAMING, render_state.win_width, render_state.win_height);
 }
 
 static bool process_events() {
@@ -96,9 +99,9 @@ static bool process_events() {
 }
 
 static void cleanup(SDL_Window* win) {
-    SDL_DestroyTexture(texture);
-    SDL_DestroyRenderer(renderer);
-    free(buffer_memory);
+    SDL_DestroyTexture(render_state.texture);
+    SDL_DestroyRenderer(render_state.renderer);
+    free(render_state.buffer_memory);
     SDL_DestroyWindow(win);
     SDL_Quit();
 }
