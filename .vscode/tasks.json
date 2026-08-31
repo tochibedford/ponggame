@@ -1,0 +1,42 @@
+{
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "Cmake configure",
+            "command": "cmake",
+            "args": ["-S", ".", "-B", "build"],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        },
+        {
+            "type": "shell",
+            "label": "Cmake build",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "build"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "dependsOn": "Cmake configure"
+        },
+        {
+            "type": "shell",
+            "label": "run app",
+            "command": "${workspaceFolder}/build/sdl_window",
+            "problemMatcher": [],
+            "dependsOn": "Cmake build"
+        }
+    ],
+    "version": "2.0.0"
+}
