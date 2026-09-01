@@ -5,13 +5,16 @@
 float player_pos_x = 0.f;
 float player_pos_y = 0.f;
 
-void simulate_game(INPUT *input){
+
+void simulate_game(INPUT *input, float dt){
     clear_screen(0xff5500);
     // draw_rect_in_pixels(50, 50, 200, 500, 0x00ff22);
-    if(is_down(BUTTON_UP)) player_pos_y += 0.5f;
-    if(is_down(BUTTON_DOWN)) player_pos_y -= 0.5f;
-    if(is_down(BUTTON_LEFT)) player_pos_x -= 0.5f;
-    if(is_down(BUTTON_RIGHT)) player_pos_x += 0.5f;
+    
+    float speed = 5.f;
+    if(pressed(BUTTON_UP)) player_pos_y += speed;
+    if(pressed(BUTTON_DOWN)) player_pos_y -= speed;
+    if(pressed(BUTTON_LEFT)) player_pos_x -= speed;
+    if(pressed(BUTTON_RIGHT)) player_pos_x += speed;
     
     draw_rect(player_pos_x, player_pos_y, 1, 1, 0x00ff22);
     draw_rect(30, 30, 5, 5, 0x00ff22);

@@ -29,17 +29,24 @@ int main(int argc, char* argv[]) {
         return EXIT_FAILURE;
     }
     clear_screen(0x000000);
-    for (int i = 0;i<BUTTON_COUNT;i++){
-        input.buttons[i].changed = false;
-    }
+
+    float delta_time = 0.016666f;
+    Uint64 frame_start_time = SDL_GetPerformanceCounter();
+    float performance_frequency = (float)SDL_GetPerformanceFrequency();
+
+
     while (process_events()) {
         // Render goes here.
-        // render_background();
-        simulate_game(&input);
+        simulate_game(&input, delta_time);
 
         SDL_UpdateTexture(render_state.texture, nullptr, render_state.buffer_memory, render_state.win_width * sizeof(unsigned int));
         SDL_RenderTextureRotated(render_state.renderer, render_state.texture, nullptr, nullptr, 0.0, nullptr, SDL_FLIP_VERTICAL);
         SDL_RenderPresent(render_state.renderer);
+
+        Uint64 frame_end_time = SDL_GetPerformanceCounter();
+        delta_time = (float)(frame_end_time-frame_start_time)/performance_frequency;
+        frame_start_time = frame_end_time;
+
     }
 
     cleanup(win);
@@ -67,13 +74,8 @@ static SDL_Window* create_window() {
     render_state.renderer = SDL_CreateRenderer(win, nullptr);
 
     for(int i=0; i<BUTTON_COUNT;i++){
-        input.buttons[BUTTON_UP].changed = false;
-        input.buttons[BUTTON_DOWN].changed = false;
-        input.buttons[BUTTON_LEFT].changed = false;
-        input.buttons[BUTTON_RIGHT].changed = false;
+        input.buttons[i].changed = false;
     }
-
-
   
     int pixel_width, pixel_height;
     SDL_GetWindowSizeInPixels(win, &pixel_width, &pixel_height);
@@ -96,6 +98,9 @@ static void resize_buffer(int width, int height) {
 }
 
 static bool process_events() {
+    for (int i = 0;i<BUTTON_COUNT;i++){
+        input.buttons[i].changed = false;
+    }
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
@@ -127,7 +132,10 @@ static void cleanup(SDL_Window* win) {
     SDL_Quit();
 }
 
-#define update_buttons(b) input.buttons[b].is_down = is_down; input.buttons[b].changed = true
+#define update_buttons(b) do{\
+                                input.buttons[b].changed = is_down != input.buttons[b].is_down; \
+                                input.buttons[b].is_down = is_down; \
+                            } while(0)
 
 void process_button(int scancode, bool is_down){
     switch (scancode) {
