@@ -6,12 +6,16 @@
 Render_State render_state;
 
 #include "renderer.cpp"
+#include "platform_common.cpp"
 
 static bool init_sdl();
 static SDL_Window* create_window();
 static void resize_buffer(int width, int height);
 static bool process_events();
 static void cleanup(SDL_Window* win);
+static void process_button(int scancode, bool is_down);
+
+INPUT input = {};
 
 int main(int argc, char* argv[]) {
     if (!init_sdl()) return EXIT_FAILURE;
@@ -22,12 +26,16 @@ int main(int argc, char* argv[]) {
         return EXIT_FAILURE;
     }
     clear_screen(0x000000);
+    for (int i = 0;i<BUTTON_COUNT;i++){
+        input.buttons[i].changed = false;
+    }
     while (process_events()) {
         // Render goes here.
         // render_background();
         clear_screen(0xff5500);
         // draw_rect_in_pixels(50, 50, 200, 500, 0x00ff22);
-        draw_rect(0, 0, 1, 1, 0x00ff22);
+        if(input.buttons[BUTTON_UP].is_down)
+            draw_rect(0, 0, 1, 1, 0x00ff22);
         draw_rect(30, 30, 5, 5, 0x00ff22);
         draw_rect(-20, 20, 8, 3, 0x00ff22);
 
@@ -59,6 +67,11 @@ static SDL_Window* create_window() {
     }
 
     render_state.renderer = SDL_CreateRenderer(win, nullptr);
+
+    for(int i=0; i<BUTTON_COUNT;i++){
+        input.buttons[BUTTON_UP].changed = false;
+    }
+
 
   
     int pixel_width, pixel_height;
@@ -95,7 +108,7 @@ static bool process_events() {
 
             case SDL_EVENT_KEY_UP:
             case SDL_EVENT_KEY_DOWN: {
-                process_button(event.key.scancode);
+                process_button(event.key.scancode, event.key.down);
             } break;
             default: {
 
@@ -113,10 +126,11 @@ static void cleanup(SDL_Window* win) {
     SDL_Quit();
 }
 
-void process_button(int scancode){
+void process_button(int scancode, bool is_down){
     switch (scancode) {
         case SDL_SCANCODE_W: {
-            //up
+            input.buttons[BUTTON_UP].is_down = is_down;
+            input.buttons[BUTTON_UP].changed = true;
         };
         case SDL_SCANCODE_S: {
             //downs
