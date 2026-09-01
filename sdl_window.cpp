@@ -1,3 +1,4 @@
+#include <iostream>
 #include <stdlib.h>
 #include "sdl_window.hpp"
 
@@ -91,6 +92,14 @@ static bool process_events() {
             case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED: {
                 resize_buffer(event.window.data1, event.window.data2);
             } break;
+
+            case SDL_EVENT_KEY_UP:
+            case SDL_EVENT_KEY_DOWN: {
+                process_button(event.key.scancode);
+            } break;
+            default: {
+
+            };
         }
     }
     return true;
@@ -102,4 +111,16 @@ static void cleanup(SDL_Window* win) {
     free(render_state.buffer_memory);
     SDL_DestroyWindow(win);
     SDL_Quit();
+}
+
+void process_button(int scancode){
+    switch (scancode) {
+        case SDL_SCANCODE_W: {
+            //up
+        };
+        case SDL_SCANCODE_S: {
+            //downs
+        };
+        default: {};
+    };
 }
