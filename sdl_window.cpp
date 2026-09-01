@@ -139,11 +139,17 @@ static void cleanup(SDL_Window* win) {
 
 void process_button(int scancode, bool is_down){
     switch (scancode) {
-        case SDL_SCANCODE_W: {
+        case SDL_SCANCODE_UP: {
             update_buttons(BUTTON_UP);
         }break;
-        case SDL_SCANCODE_S: {
+        case SDL_SCANCODE_DOWN: {
             update_buttons(BUTTON_DOWN);
+        }break;
+        case SDL_SCANCODE_W: {
+            update_buttons(BUTTON_W);
+        }break;
+        case SDL_SCANCODE_S: {
+            update_buttons(BUTTON_S);
         }break;
         case SDL_SCANCODE_A: {
             update_buttons(BUTTON_LEFT);
