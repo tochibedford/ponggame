@@ -10,21 +10,35 @@ void clear_screen(unsigned int color){
 
 void draw_rect_in_pixels(int x1, int y1, int x2, int y2, unsigned int color){
     unsigned int* pixel = (unsigned int*) render_state.buffer_memory;
-    int startX = x1 <= x2 ? x1 : x2;
-    int endX = x1 <= x2 ? x2 : x1;
-    int startY = y1 <= y2 ? y1 : y2;
-    int endY = y1 <= y2 ? y2 : y1;
-    for(int y=y1; y>0 && y<render_state.win_height && y<y2; y++)
-        for (int x = x1; x>0 && x<render_state.win_width && x<x2; x++){
+    int startX = clamp(0, x1 <= x2 ? x1 : x2, render_state.win_width);
+    int endX   = clamp(0, x1 <= x2 ? x2 : x1, render_state.win_width);
+    int startY = clamp(0, y1 <= y2 ? y1 : y2, render_state.win_height);
+    int endY   = clamp(0, y1 <= y2 ? y2 : y1, render_state.win_height);
+
+    for (int y = startY; y < endY; y++)
+        for (int x = startX; x < endX; x++){
             *(pixel + coordinateTo1d(x, y, render_state.win_width)) = color;
         }
 }
 
+static float render_scale = 0.01f;
+
+static float reference_extent(){
+    return (render_state.win_width * 9 > render_state.win_height * 16)
+        ? render_state.win_height
+        : render_state.win_width;
+}
+
+static float pixels_per_unit(){
+    return reference_extent() * render_scale;
+}
+
 void draw_rect(float x, float y, float half_size_x, float half_size_y, unsigned int color){
-    x *= render_state.win_height;
-    y *= render_state.win_height;
-    half_size_x *= render_state.win_height;
-    half_size_y *= render_state.win_height;
+    float scale = pixels_per_unit();
+    x *= scale;
+    y *= scale;
+    half_size_x *= scale;
+    half_size_y *= scale;
 
     x += render_state.win_width / 2.f;
     y += render_state.win_height / 2.f;

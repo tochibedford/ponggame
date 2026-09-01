@@ -26,7 +26,9 @@ int main(int argc, char* argv[]) {
         // render_background();
         clear_screen(0xff5500);
         // draw_rect_in_pixels(50, 50, 200, 500, 0x00ff22);
-        draw_rect(0, 0, 0.2, 0.2, 0x00ff22);
+        draw_rect(0, 0, 1, 1, 0x00ff22);
+        draw_rect(30, 30, 5, 5, 0x00ff22);
+        draw_rect(-20, 20, 8, 3, 0x00ff22);
 
         SDL_UpdateTexture(render_state.texture, nullptr, render_state.buffer_memory, render_state.win_width * sizeof(unsigned int));
         SDL_RenderTextureRotated(render_state.renderer, render_state.texture, nullptr, nullptr, 0.0, nullptr, SDL_FLIP_VERTICAL);
