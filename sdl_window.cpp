@@ -1,15 +1,10 @@
-#include <SDL3/SDL.h>
-#include <SDL3/SDL_main.h>
 #include <stdlib.h>
+#include "sdl_window.hpp"
 
-struct Render_State {
-    int win_width, win_height;
-    SDL_Renderer* renderer;
-    SDL_Texture* texture;
-    void* buffer_memory;
-};
-
+// The one definition of the global declared in sdl_window.h.
 Render_State render_state;
+
+#include "renderer.cpp"
 
 static bool init_sdl();
 static SDL_Window* create_window();
@@ -25,13 +20,14 @@ int main(int argc, char* argv[]) {
         cleanup(win);
         return EXIT_FAILURE;
     }
-
+    clear_screen(0x000000);
     while (process_events()) {
         // Render goes here.
-        unsigned int* pixel = (unsigned int*)render_state.buffer_memory;
-        for (int y = 0; y < render_state.win_height; y++)
-            for (int x = 0; x < render_state.win_width; x++)
-                *pixel++ = x * y;
+        // render_background();
+        clear_screen(0xff5500);
+        // draw_rect_in_pixels(50, 50, 200, 500, 0x00ff22);
+        draw_rect(0, 0, 0.2, 0.2, 0x00ff22);
+
         SDL_UpdateTexture(render_state.texture, nullptr, render_state.buffer_memory, render_state.win_width * sizeof(unsigned int));
         SDL_RenderTextureRotated(render_state.renderer, render_state.texture, nullptr, nullptr, 0.0, nullptr, SDL_FLIP_VERTICAL);
         SDL_RenderPresent(render_state.renderer);
