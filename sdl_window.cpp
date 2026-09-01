@@ -8,6 +8,7 @@ Render_State render_state;
 #include "renderer.cpp"
 #include "platform_common.cpp"
 
+
 static bool init_sdl();
 static SDL_Window* create_window();
 static void resize_buffer(int width, int height);
@@ -16,6 +17,8 @@ static void cleanup(SDL_Window* win);
 static void process_button(int scancode, bool is_down);
 
 INPUT input = {};
+
+#include "game.cpp"
 
 int main(int argc, char* argv[]) {
     if (!init_sdl()) return EXIT_FAILURE;
@@ -32,12 +35,7 @@ int main(int argc, char* argv[]) {
     while (process_events()) {
         // Render goes here.
         // render_background();
-        clear_screen(0xff5500);
-        // draw_rect_in_pixels(50, 50, 200, 500, 0x00ff22);
-        if(input.buttons[BUTTON_UP].is_down)
-            draw_rect(0, 0, 1, 1, 0x00ff22);
-        draw_rect(30, 30, 5, 5, 0x00ff22);
-        draw_rect(-20, 20, 8, 3, 0x00ff22);
+        simulate_game(&input);
 
         SDL_UpdateTexture(render_state.texture, nullptr, render_state.buffer_memory, render_state.win_width * sizeof(unsigned int));
         SDL_RenderTextureRotated(render_state.renderer, render_state.texture, nullptr, nullptr, 0.0, nullptr, SDL_FLIP_VERTICAL);
@@ -70,6 +68,9 @@ static SDL_Window* create_window() {
 
     for(int i=0; i<BUTTON_COUNT;i++){
         input.buttons[BUTTON_UP].changed = false;
+        input.buttons[BUTTON_DOWN].changed = false;
+        input.buttons[BUTTON_LEFT].changed = false;
+        input.buttons[BUTTON_RIGHT].changed = false;
     }
 
 
@@ -126,15 +127,22 @@ static void cleanup(SDL_Window* win) {
     SDL_Quit();
 }
 
+#define update_buttons(b) input.buttons[b].is_down = is_down; input.buttons[b].changed = true
+
 void process_button(int scancode, bool is_down){
     switch (scancode) {
         case SDL_SCANCODE_W: {
-            input.buttons[BUTTON_UP].is_down = is_down;
-            input.buttons[BUTTON_UP].changed = true;
-        };
+            update_buttons(BUTTON_UP);
+        }break;
         case SDL_SCANCODE_S: {
-            //downs
-        };
+            update_buttons(BUTTON_DOWN);
+        }break;
+        case SDL_SCANCODE_A: {
+            update_buttons(BUTTON_LEFT);
+        }break;
+        case SDL_SCANCODE_D: {
+            update_buttons(BUTTON_RIGHT);
+        }break;
         default: {};
     };
 }
