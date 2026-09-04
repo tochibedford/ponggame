@@ -1,3 +1,11 @@
+//doing this so vscode intellisense stops showing errors in this file since i'm doing a unity build
+#ifndef SDL_WINDOW_HPP
+#include "sdl_window.hpp"
+#include "platform_common.cpp"
+#include "renderer.cpp"
+
+#endif
+
 #define is_down(b) input->buttons[b].is_down
 #define pressed(b) (input->buttons[b].is_down && input->buttons[b].changed)
 #define released(b) (!(input->buttons[b].is_down) && input->buttons[b].changed)
